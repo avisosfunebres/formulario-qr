@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando...</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #ffffff; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #000000; border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader">
+    <p>Abriendo formulario de forma segura...</p>
+    </div>
+    
+    <script>
+        (function() {
+            // CAMBIA ESTO POR TU LINK REAL DE TALLY
+            var urlTally = "https://tally.so/r/q4QaK2"; 
+            
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            var isAndroid = /android/i.test(ua);
+            var isRealChrome = /Chrome/i.test(ua) && !/Version\/[0-9\.]+/i.test(ua) && !/SamsungBrowser|MiuiBrowser|FBAN|FBAV|Instagram/i.test(ua);
+
+            if (isAndroid && !isRealChrome) {
+                var cleanUrl = urlTally.replace(/^https?:\/\//, '');
+                var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
+                window.location.replace(chromeIntent);
+            } else {
+                window.location.replace(urlTally);
+            }
+        })();
+    </script>
+</body>
+</html>
+
