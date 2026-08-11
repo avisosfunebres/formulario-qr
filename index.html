@@ -3,61 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Formulario...</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 40px 20px; background: #fdfdfd; color: #333; }
-        .box { max-width: 400px; margin: 50px auto; padding: 30px; border-radius: 16px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #eaeaea; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 0 auto 25px; }
-        h2 { font-size: 20px; margin-bottom: 10px; font-weight: 600; }
-        p { color: #666; font-size: 15px; line-height: 1.5; margin-bottom: 25px; }
-        .btn-manual { display: inline-block; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 15px; }
-        .steps { text-align: left; background: #f8fafc; padding: 15px; border-radius: 8px; font-size: 14px; margin-top: 20px; display: none; border: 1px dashed #cbd5e1; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <title>Redireccionando...</title>
 </head>
 <body>
-
-    <div class="box">
-        <div class="loader"></div>
-        <h2>Optimizando visualización...</h2>
-        <p>Para asegurar que el formulario cargue correctamente, debés abrirlo en tu navegador principal.</p>
-        
-        <div id="instruccionesAndroid" class="steps">
-            <strong>⚠️ ATENCIÓN USUARIOS DE ANDROID:</strong><br>
-            El lector de tu cámara bloquea la carga. Por favor:<br><br>
-            1. Tocá los <strong>tres puntos (...)</strong> arriba a la derecha.<br>
-            2. Seleccioná <strong>"Abrir en Chrome"</strong> o "Abrir en el navegador".
-        </div>
-
-        <a id="btnIntent" href="#" class="btn-manual">Abrir formulario</a>
-    </div>
-
     <script>
         (function() {
             var urlTally = "https://tally.so/r/q4QaK2"; 
             var ua = navigator.userAgent || navigator.vendor || window.opera;
+            
             var isAndroid = /android/i.test(ua);
-            var isRealChrome = /Chrome/i.test(ua) && !/Version\/[0-9\.]+/i.test(ua) && !/SamsungBrowser|MiuiBrowser|FBAN|FBAV|Instagram/i.test(ua);
+            var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
-            var cleanUrl = urlTally.replace(/^https?:\/\//, '');
-            var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
-
-            // Configuramos el botón principal por si el redireccionamiento falla
-            var btn = document.getElementById('btnIntent');
             if (isAndroid) {
-                btn.href = chromeIntent;
-            } else {
-                btn.href = urlTally;
-            }
-
-            if (isAndroid && !isRealChrome) {
-                // Mostramos las instrucciones inmediatamente para alertar al usuario
-                document.getElementById('instruccionesAndroid').style.display = 'block';
+                // 1. Limpiamos la URL quitando el protocolo 'https://'
+                var cleanUrl = urlTally.replace(/^https?:\/\//, '');
                 
-                // Intentamos forzar la redirección automática de fondo
+                // 2. Construimos el Intent específico del paquete oficial de Chrome
+                var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
+                
+                // 3. Forzamos la apertura de la App de Chrome de raíz
                 window.location.replace(chromeIntent);
-            } else {
-                // Si ya está en Chrome o es iOS, va directo a Tally
+            } 
+            else if (isIOS) {
+                // 1. Codificamos la URL para cumplir con los estándares de Apple
+                var encodedUrl = encodeURIComponent(urlTally);
+                
+                // 2. Usamos el protocolo interno del sistema iOS que obliga a Safari a abrir la URL
+                var safariIntent = "x-web-search://?site=" + encodedUrl;
+                
+                // 3. Forzamos la apertura de la App de Safari de raíz
+                window.location.replace(safariIntent);
+            } 
+            else {
+                // Si están en una PC o cualquier otro sistema operativo, va directo
                 window.location.replace(urlTally);
             }
         })();
