@@ -3,39 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redireccionando...</title>
+    <title>Abriendo...</title>
 </head>
 <body>
     <script>
         (function() {
             var urlTally = "https://tally.so/r/q4QaK2"; 
             var ua = navigator.userAgent || navigator.vendor || window.opera;
-            
-            var isAndroid = /android/i.test(ua);
-            var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 
+            // 1. DETECCIÓN ULTRA AGRESIVA (Resiste Modo PC)
+            // Si dice Android en el texto, o si tiene pantalla táctil extrema simulando ser Linux/Mac
+            var isAndroid = /android/i.test(ua) || 
+                            (/Linux/i.test(ua) && navigator.maxTouchPoints > 1) || 
+                            (navigator.platform === 'Linux armv8l' && navigator.maxTouchPoints > 1);
+            
+            // Si dice iPhone, o si simula ser una Mac de escritorio pero tiene pantalla táctil (iOS en Modo PC)
+            var isIOS = /iPad|iPhone|iPod/.test(ua) || 
+                        (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+
+            // 2. DISPARADORES DE PROTOCOLO BINARIO
             if (isAndroid) {
-                // 1. Limpiamos la URL quitando el protocolo 'https://'
                 var cleanUrl = urlTally.replace(/^https?:\/\//, '');
                 
-                // 2. Construimos el Intent específico del paquete oficial de Chrome
+                // INTENT PRINCIPAL: Fuerza el paquete de Chrome
                 var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
                 
-                // 3. Forzamos la apertura de la App de Chrome de raíz
+                // INTENT SECUNDARIO (Por si el motor PC bloquea el reemplazo de ubicación directo)
                 window.location.replace(chromeIntent);
+                
+                // Respaldo de fuerza bruta por si la pestaña PC congela el script
+                setTimeout(function() {
+                    window.location.href = chromeIntent;
+                }, 100);
             } 
             else if (isIOS) {
-                // 1. Codificamos la URL para cumplir con los estándares de Apple
                 var encodedUrl = encodeURIComponent(urlTally);
-                
-                // 2. Usamos el protocolo interno del sistema iOS que obliga a Safari a abrir la URL
                 var safariIntent = "x-web-search://?site=" + encodedUrl;
                 
-                // 3. Forzamos la apertura de la App de Safari de raíz
                 window.location.replace(safariIntent);
+                
+                setTimeout(function() {
+                    window.location.href = safariIntent;
+                }, 100);
             } 
             else {
-                // Si están en una PC o cualquier otro sistema operativo, va directo
+                // Si realmente es una computadora de escritorio real
                 window.location.replace(urlTally);
             }
         })();
